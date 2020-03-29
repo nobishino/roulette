@@ -56,6 +56,10 @@ const Display = props => {
     )
 }
 
+//速度調整用
+const beforeStopButtonMillSec = 100;
+const afterStopButtonMullSec = 500;
+
 const AppF = () => {
     const [items, setItems] = useState([]);
     const [selected, setSelected] = useState(-1);
@@ -69,7 +73,8 @@ const AppF = () => {
         setCountdown(-1);
     };
     const rollNext = current => {
-        const next = (current + 1) % items.length
+        const diff = Math.floor(Math.random() * (items.length - 1)) + 1; // diff <- [1, size - 1] 
+        const next = (current + diff) % items.length
         console.log(`Selected item: (${next}, ${items[next]})`);
         return next
     };
@@ -89,7 +94,7 @@ const AppF = () => {
         setRolling(true);
         setIntervalId(setInterval(() => {
             setSelected(rollNext);
-        }, 100));
+        }, beforeStopButtonMillSec));
     };
     const onStop = () => {
         console.log("onStop() called");
@@ -112,7 +117,7 @@ const AppF = () => {
                     }
                     return nextCnt;
                 });
-            }, 500);
+            }, afterStopButtonMullSec);
         });
     };
     return (
