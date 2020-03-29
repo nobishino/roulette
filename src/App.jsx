@@ -68,6 +68,15 @@ const AppF = () => {
         setSelected(-1);
         setCountdown(-1);
     };
+    const rollNext = current => {
+        const next = (current + 1) % items.length
+        console.log(`Selected item: (${next}, ${items[next]})`);
+        return next
+    };
+    const clearIntervalId = id => {
+        clearInterval(id);
+        return null;
+    };
     const onStart = () => {
         if (intervalId !== null) {
             console.log(`intervalId is not null: ${intervalId}`);
@@ -79,11 +88,7 @@ const AppF = () => {
         }
         setRolling(true);
         setIntervalId(setInterval(() => {
-            setSelected(x => {
-                const next = (x + 1) % items.length
-                console.log(`Selected item: (${next}, ${items[next]})`);
-                return next
-            });
+            setSelected(rollNext);
         }, 100));
     };
     const onStop = () => {
@@ -98,20 +103,14 @@ const AppF = () => {
             clearInterval(intervalId);
             return setInterval(() => {
                 setCountdown(cnt => {
-                    setSelected(x => {
-                        const next = (x + 1) % items.length
-                        console.log(`Selected item: (${next}, ${items[next]})`);
-                        return next
-                    });
-                    if (cnt - 1 === 0) {
-                        setIntervalId(id => {
-                            clearInterval(id);
-                            return null;
-                        });
+                    const nextCnt = cnt - 1;
+                    console.log(`count = ${nextCnt}`);
+                    setSelected(rollNext);
+                    if (nextCnt === 0) {
+                        setIntervalId(clearIntervalId);
+                        setRolling(false);
                     }
-                    console.log(`count = ${cnt - 1}`);
-                    setRolling(false);
-                    return cnt - 1;
+                    return nextCnt;
                 });
             }, 500);
         });
