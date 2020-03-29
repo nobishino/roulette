@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const InputBox = props => {
     const parseInput = text => {
         return text
-            .replace(/\n(\s)+\n/, "\n", 'g', 'm') //0個以上のスペースのみからなる行を削除
-            .replace(/\n(\s)+$/, "", 'g', 'm')
             .split(/\r\n|\r|\n/) //改行コードで分割
-            .filter(item => item !== ""); //空行削除
+            .filter(item => !item.match(/^\s*$/)); //空行削除
     }
     const onChange = event => {
         const text = event.target.value;
@@ -58,78 +56,72 @@ const Display = props => {
     )
 }
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            selected: -1,
-            items: [],
-            finished: false,
-        };
-        this.handleTextareaChange = this.handleTextareaChange.bind(this);
-        this.onStart = this.onStart.bind(this);
-        this.onStop = this.onStop.bind(this);
-    }
-    handleTextareaChange(items) {
-        this.setState({
-            selected: -1,
-            items: items,
-            finished: false,
-        });
-    }
-    onStart() {
-        // intervalMillsec = intervalMillsec || 1000;
-        const interval = setInterval(() => {
-            this.setState(state => {
-                return {
-                    selected: (state.selected + 1) % state.items.length,
-                }
+const AppF = () => {
+    const [items, setItems] = useState([]);
+    const [selected, setSelected] = useState(-1);
+    const [intervalId, setIntervalId] = useState(null);
+    const [countdown, setCountdown] = useState(-1);
+    const [rolling, setRolling] = useState(false);
+    const isFinished = () => countdown === 0 && !rolling;
+    const handleTextareaChange = items => {
+        setItems(items);
+        setSelected(-1);
+        setCountdown(-1);
+    };
+    const onStart = () => {
+        if (intervalId !== null) {
+            console.log(`intervalId is not null: ${intervalId}`);
+            return;
+        }
+        if (items.length === 0) {
+            console.log(`items are empty`);
+            return;
+        }
+        setRolling(true);
+        setIntervalId(setInterval(() => {
+            setSelected(x => {
+                const next = (x + 1) % items.length
+                console.log(`Selected item: (${next}, ${items[next]})`);
+                return next
             });
-        }, 200);
-        this.setState({
-            finished: false,
-            interval: interval,
-        });
-    }
-    onStop() {
-        const getRandomInt = max => Math.floor(Math.random() * Math.floor(max));
-        const itemNum = this.state.items.length
-        const randCnt = itemNum + getRandomInt(2*itemNum);
-        this.setState(state => {
-            if (this.state.finished) return;
-            clearInterval(state.interval);
-            const interval = setInterval(() => {
-                this.setState(state => {
-                    console.log(`Remaining: ${state.countdown}`)
-                    if (state.countdown > 0) {
-                        return{
-                            countdown: state.countdown - 1,
-                            selected: (state.selected + 1) % state.items.length,
-                        };
-                    } else {
-                        clearInterval(state.interval)
-                        return {
-                            interval: null,
-                            finished: true,
-                        };
+        }, 100));
+    };
+    const onStop = () => {
+        console.log("onStop() called");
+        if (!rolling) {
+            console.log(`Roulette is not rolling.`);
+            return;
+        }
+        const startCount = Math.floor(Math.random() * items.length) + items.length;
+        setCountdown(startCount > 0 ? startCount : 1);
+        setIntervalId(intervalId => {
+            clearInterval(intervalId);
+            return setInterval(() => {
+                setCountdown(cnt => {
+                    setSelected(x => {
+                        const next = (x + 1) % items.length
+                        console.log(`Selected item: (${next}, ${items[next]})`);
+                        return next
+                    });
+                    if (cnt - 1 === 0) {
+                        setIntervalId(id => {
+                            clearInterval(id);
+                            return null;
+                        });
                     }
+                    console.log(`count = ${cnt - 1}`);
+                    setRolling(false);
+                    return cnt - 1;
                 });
-
             }, 500);
-            return {
-                countdown: randCnt,
-                interval: interval,
-            }
         });
-    }
-    render() {
-        return (
-            <div>
-                <InputBox onChange={this.handleTextareaChange} />
-                <Control onStart={this.onStart} onStop={this.onStop} intervalMillsec={1000} />
-                <Display itemList={this.state.items} selected={this.state.selected} finished={this.state.finished} />
-            </div>
-        )
-    }
+    };
+    return (
+        <div>
+            <InputBox onChange={handleTextareaChange} />
+            <Control onStart={onStart} onStop={onStop} />
+            <Display itemList={items} selected={selected} finished={isFinished()} />
+        </div>
+    );
 }
-export default App;
+export default AppF;
