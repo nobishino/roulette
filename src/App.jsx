@@ -11,7 +11,6 @@ const InputBox = props => {
     const onChange = event => {
         const text = event.target.value;
         const items = parseInput(text)
-        console.log(items);
         props.onChange(items);
     }
     return (
@@ -30,10 +29,6 @@ const Control = props => {
     )
 }
 
-// const itemList = [
-//     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'Item with longer name',
-// ];
-
 const RouletteItems = props => {
     const selectClass = index => {
         if (index !== props.selected) {
@@ -48,11 +43,6 @@ const RouletteItems = props => {
         return <Item key={index + "-" + itemLabel} itemLabel={itemLabel} select={selectClass(index)} />
     });
     return items;
-}
-
-const genCounter = () => {
-    let count = 0;
-    return () => count++;
 }
 
 const Item = props => {
@@ -91,7 +81,6 @@ class App extends React.Component {
         // intervalMillsec = intervalMillsec || 1000;
         const interval = setInterval(() => {
             this.setState(state => {
-                console.log(state);
                 return {
                     selected: (state.selected + 1) % state.items.length,
                 }
@@ -104,11 +93,14 @@ class App extends React.Component {
     }
     onStop() {
         const getRandomInt = max => Math.floor(Math.random() * Math.floor(max));
-        const randCnt = 20 + getRandomInt(10);
+        const itemNum = this.state.items.length
+        const randCnt = itemNum + getRandomInt(2*itemNum);
         this.setState(state => {
+            if (this.state.finished) return;
             clearInterval(state.interval);
             const interval = setInterval(() => {
                 this.setState(state => {
+                    console.log(`Remaining: ${state.countdown}`)
                     if (state.countdown > 0) {
                         return{
                             countdown: state.countdown - 1,
