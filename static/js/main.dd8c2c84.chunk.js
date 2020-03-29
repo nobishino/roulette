@@ -1,2 +1,0 @@
-(this.webpackJsonproulette=this.webpackJsonproulette||[]).push([[0],{3:function(e,t,n){e.exports=n(9)},8:function(e,t,n){},9:function(e,t,n){"use strict";n.r(t);var o=n(0),r=n.n(o),u=n(2),c=n.n(u),l=(n(8),function(){return r.a.createElement("div",null,"Hello React")});c.a.render(r.a.createElement(l,null),document.getElementById("root"))}},[[3,1,2]]]);
-//# sourceMappingURL=main.dd8c2c84.chunk.js.map
