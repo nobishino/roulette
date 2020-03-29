@@ -108,13 +108,14 @@ const AppF = () => {
             clearInterval(intervalId);
             return setInterval(() => {
                 setCountdown(cnt => {
+                    if (cnt === 0) {
+                        setIntervalId(clearIntervalId);
+                        setRolling(false);
+                        return 0;
+                    }
                     const nextCnt = cnt - 1;
                     console.log(`count = ${nextCnt}`);
                     setSelected(rollNext);
-                    if (nextCnt === 0) {
-                        setIntervalId(clearIntervalId);
-                        setRolling(false);
-                    }
                     return nextCnt;
                 });
             }, afterStopButtonMullSec);
